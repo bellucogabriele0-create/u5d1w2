@@ -1,0 +1,282 @@
+@@@@@@@@@@@@@@@@@@@@ LEZIONE 1 SPRING SECURITY E JWT AUTHENTICATION @@@@@@@@@@@@@@@@@@@@
+TimeUnit.DAYS.toMillis(30
+c'è la necessità di proteggere questi endpoint a solo chi è autenticato o per scegliere chi sei magari sei l'admin,
+autenticazione capisco chi sei e autorizzazione ti faccio fare le cose di cui hai accesso.
+ci sono vari sistemi che si utilizzano uno di questi è jwt che è un Json Web Token questo mecanismo tramite token è
+molto sicura ed è utile in casi di BE molto grandi. quindi l'autenticazione risponde alla domanda chi sei con il login,
+invece l'autorizzazione è cosa puoi fare se admin tutto se sei un utente meno cose.
+il codice della jwt è diviso in tre parti xxxxxxxxxx.yyyyyyyyyyyyy.zzzzzzzzzzzzz la x è l'header, la y payload dove
+all'interno ci saranno delle cose identificative di una persona come l'id il ruolo, quando il token è stato generato, il
+tempo di scadenza del token, prima scade meglio è.La z si chiama signature vuol dire firma, firma digitale del token, serve
+per garantire l'integrtò del token ciò vuol'dire che non può essere modificabile, che grazie a un algoritmo prende header,
+payload e li firmi con un hash.
+tutto inizia dal client dove gli viene richiesto username e password e invia al server una richiesta per il token, e il
+server gli rende un token JWT secret, poi gli torna al client il token, il token sarebbe meglio che venga salvato il token
+in LOCAL STORAGE, SESSION STORAGE, questo salvataggio permette che se volessi fare delle modifiche io le devo fare con il token
+dopo le richieste che ci sono dopo il login saranno checkate da del codice che ci permette di controllare la firma
+del token e se è sbagliato toccherà rifare il token.
+i passaggi per la creazione sono l'aggiunta per la verifica e creazione token grazie alle dependencies e Spring Security
+nell'initialzr
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ LEZIONE 1 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+PROGRAMMAZIONE BACKEND
+nella programazzione BE si tratta di avere un'applicazione Web Server.
+SERVER
+un server è uno strumento a "servizio di" dunque un qualcosa che aspetta delle richieste, quindi già dalla prossima lezione
+vedremo che saranno molto diverse le applicazioni fatte fino ad adesso, perchè fino ad adesso all'avvio dell'applicazione
+il codice del main o del runner viene eseguito e dopo esce, invece la web server è come una sorta di loop infinito che quando
+arriva una richiesta, la elabora cercando di capire cosa gli serve e eseguela logica, e invierà una risposta, interagendo
+tra DB e server.
+tempo fa le applicazioni erano strutturate in maniera monolitica quindi tutte le perti dell'app erano gestite direttamente
+dal codice prodotto dai programmatori stessi interni, successivamente si è iniziato a spezzetare questo aspetto facendo in
+modo che le app non siano più monolitiche e prendendo servizi da terze parti come ad esempio i marketplace che permettono
+di pagare i prodotti attraverso paypal, quindi la sezione pagamenti non è creata dal programmatore ma direttamente da paypal
+e il programmatore dovrà "solo" gestirne i collegamenti con piani a pagamento, oppure anche per l'invio delle email per
+notifiche, Ecco questi servizi secondari è indispensabile che abbiano delle "interfacce", il più possibile indipendenti
+in modo che siano facili da intercambare, devono inoltre essere "a grana grossa" (course-grained) ovvero che non devono
+esporre tutti i detagli ma che sia possibile usufruirne grazie a un singolo metodo, e questo inoltre permetterà il (loosely-coupled)
+anche qua, deve anche essere a disposizione di più parti dell'app e deve essere componibile in caso si voglia realizzare
+qualcosa di molto complesso.
+esistono diversi modi per realizzare le web services, tempo fa si uttilizzavano le SOAP or invece si prediliggono le REST APIs
+SOAP è un approccio datato un po più macchinoso ed è un protocollo, quindi un'insieme di regole molto rigide da seguire,
+soap lavora con xml quindi ha bisogno dei tag per lavorarci, anche per lavorarci c'erano dei documenti fatti apposta per
+poter capire cosa mettere nei vari tag, e le risposte tornavano uguali con dell'altro xml quindi molto lungo come processo.
+REST
+la differenza tra rest e soap sta nel contenuto delle risposte ma anche come comporre queste richieste etc., inoltre rest non
+è un protocollo quindi non ha una serie di regole rigide da seguire, rest è come se fosse una racolta di best practicies
+da seguire per far si che i passaggi siano al meglio intuitivi, inoltre le risposte saranno in JSON che è un formato veloce
+e compato dei dati che ci servono all'occorrenza, ma non siamo costretti ad usare solo json ma possiamo usare anche xml in dei
+casi particolari.
+il server può mandare richieste, ma non le manda ai client perchè loro sono coloro che mandano le richieste, le può
+mandare solamente ad altri server.
+Le 4 caratteristiche principali di una richiesta http sono:
+1) URL: ovvero l'indirizzo del server del destinatario a cui inviare la risposta
+2) METODO: ovvero GET PUT POST e DELETE
+3) PAYLOAD: ovvero il BODY quindi se dobbiamo mandare qualcosa al server glielo mandiamo tramite payload, però non lo si usa
+sempre, quando facciamo una get stiamo richiedendo dei  dati non li stiamo inserendo, solitamente usato per POST PUT PATCH
+in formato JSON
+4) HEADERS: ovvero informazioni aggiuntive "varie" ad esempio gli mandiamo application json quando dobbiamo inviare del json,
+per contenere informazioni del client che sta facendo la richiesta, se è un browser, per informazioni riguardanti l'autenticazione
+dimensione del payload, se vogliamo accetare determinati forati oppure no, quindi tutta una serie di informazioni accessorie
+
+dentro la risposta ci sarà:
+PAYLOAD
+HEADERS
+STATUS COME I 2XX I 3XX I 4XX E I 5XX che andremmo a personalizzare
+
+quindi ciò che si andrà a fare quando si fa BE si creeranno degli ENDPOINT essi sono la combinazione di METODO più URL
+per lo stesso URL noi possiamo usare diversi metodi ognuna di queste combinazioni univoche sarà un endpoint. ad esempio:
+GET  su https://www.instagram.com/users
+POST su https://www.instagram.com/users
+ecco che qua abbiamo lo stesso URL ma con metodo diverso quindi sono due ENDPOINT diversi, e con REST ci verrà
+semplificato tutto ciò.
+un'altra caratteristica di rest è lo statless ovvero che il server non si salverà i dati che gli passiamo ma, controllerà
+se sono salvati nel DB come quando gli passi un token di login e lui capisce se sei iscritto o no a quel sito. invece statefull
+è quando il server salva informazioni tra una richiesta e l'altra. REST adata statles per comodità nella scalabilità.
+
+per capirci meglio su dei concetti già preannunciati prima, una risorsa REST è identificata da un URI e le  operazioni
+da effettuare su di essa sono identificate dal verbo HTTP che si utilizza per invocare tale URI ad esempio:
+
+Lettura di una risorsa con ID = 1      : GET:    www.sitoweb.com/api/users/1
+Salvattaggio di una risorsa            : POST:   www.sitoweb.com/api/users/
+Eliminazione di una risorsa con ID = 1 : DELETE: www.sitoweb.com/api/users/1
+
+ad esempio nella get degli users l'id viene passato perchè è già uno user salvato nel db, nella delete lo stesso, avendo
+già lo user salvato e sapendo già chi vogliamo eliminare, mentre nella post non abbiamo l'id perchè viene passato dal server
+quando si fa una get del tipo
+
+GET/users allora ciò che ci si aspetta di risposta sarà un payload contenente un array di users
+e una risposta 200
+
+ma potrei aver bisogno anche di una lista di utnti filtrati e questo si fa con:
+GET /users?name=John e io qua ho messo ? chiave valore dunque cercherò tutti gli utenti che si chiamano John questo viene
+chiamato query parameters, e la risposta sarà come prima ovvero un payload contenente array di users filtrati con risposta 200 OK
+
+invece questo concetto è diverso perchè al posto del punto di domanda c'è uno slash è ciò vuol dire che l'URL è un'altro
+GET users/1234 la parte "1234" si chiama Path Parameter è un endpoint che serve a definire come target una singola risorsa
+ad esempio per gli id e non una lista come prima con risposta 200 OK
+
+questo con endpooint diverso a prima ovvero una post e come tale creerà un payload con i dati dei nuovi utenti, immaginiamoci
+di collegare questa a un form di registrazione e tutti i dati vengono condensati in un json, il json viene messo come richiesta
+per questo url, il server riceve questa richiesta salva i dati nel DB,
+POST /users
+e la risposta sarà 201 CREATED con payload contenente l'id del nuovo user
+
+questo endpoint si occupa di modificare uno specifico user in questo caso torna l'id alla fine dell'URL quindi la put è
+come una sorta di findByIdAndUpdate.
+PUT users/123
+la put è stata creata per modificare tutto l'intero oggetto al contrario della PATCh che modifica un solo attributo specifico
+e la risposta sarà 200 OK con il payload contenente lo user 123 modificato
+
+DELTE users/123
+questo URL come anche altri già scritti ha un target specifico, quindi cancellerà uno specifico utente e la risposta migliore
+è 204 NO CONTENT
+
+ma se avessimo degli end poin annodati ovvero correlati tra loro useremo lo stesso approccio dunque per vedere tutti gli
+ordini dello user 123 sarà:
+GET users/123/orders
+e la risposta sarà 200 OK payload contenente tutti gli ordini dell'utente 123
+
+POST users/123/orders
+questo ad esempio aggiungo agli ordini un nuovo ordine e ci torna un 201 CREATED payload contenente l'id dell'ordine
+creato per quell'utente
+
+MA dovremmo imparare anche gli status degli errori, ad esempio è bene sapere che gli errori 400 sono lato client, invece
+gli errori 500 sono lato server
+
+SWAGGER INFORMATISU COME SI USA
+
+POSTMAN
+è un programma che serve per inviare richieste al BE
+
+RIASSUNTO:
+La programmazione backend si concentra sulla creazione di applicazioni Web Server, ovvero strumenti progettati per
+restare in costante attesa di richieste esterne. A differenza delle applicazioni tradizionali che terminano dopo aver
+eseguito il codice principale, un server opera in un ciclo continuo: riceve una richiesta, ne elabora la logica
+interagendo spesso con un database e restituisce una risposta. Mentre in passato le applicazioni erano monolitiche e
+gestite interamente all'interno, oggi si tende a scomporle utilizzando servizi esterni tramite interfacce indipendenti
+e semplificate, seguendo il principio del "loosely-coupled" per facilitare l'intercambiabilità e la componibilità del software.
+
+Per realizzare i servizi web si preferisce oggi l'approccio REST rispetto al datato protocollo SOAP. Se SOAP è un insieme
+di regole rigide basate su XML, REST è una raccolta di buone pratiche più flessibile che utilizza principalmente il
+formato JSON, più veloce e compatto. In questo contesto, la comunicazione avviene tramite il protocollo HTTP, dove ogni
+richiesta è composta da quattro elementi fondamentali: l'URL del destinatario, il metodo che definisce l'azione da
+compiere, il payload che contiene i dati da inviare e gli headers che trasportano informazioni accessorie come il tipo
+di formato o i dati di autenticazione. La risposta del server include a sua volta un payload, degli headers e un codice
+di stato che indica l'esito dell'operazione.
+
+Il cuore del lavoro backend consiste nella creazione di endpoint, che sono combinazioni univoche di un metodo e un URL.
+REST segue il principio "stateless", il che significa che il server non memorizza informazioni tra una richiesta e
+l'altra, migliorando la scalabilità del sistema. Le risorse vengono gestite attraverso i verbi HTTP: il metodo GET
+permette di leggere i dati, POST di crearne di nuovi, PUT o PATCH di modificarli e DELETE di eliminarli. Per
+identificare le risorse si utilizzano i Path Parameters (come l'ID di un utente specifico nell'URL) o i Query Parameters
+per filtrare elenchi di dati.
+
+La gestione corretta delle risposte prevede l'uso di codici di stato standardizzati: ad esempio, il codice 200 indica
+il successo, il 201 la creazione di una risorsa, il 204 una cancellazione avvenuta con successo senza dati di ritorno,
+mentre i codici 400 e 500 segnalano rispettivamente errori lato client o lato server. Infine, per testare queste
+interazioni e inviare richieste al backend durante la fase di sviluppo, si utilizzano strumenti specifici come Postman.
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ LEZIONE 2 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+In questa lezione vedremo principalmente come creare un'applicazione SPRING WEB con quelle richieste di URL che abbiamo
+visti nella scorsa lezione. Uno dei concetti principali di questa lezione è il controller che serve pr DEFINIRE gli ENDPOINT
+gli endpoint sono i metodi di questa classe, dunque potremmo avere anche più controller ognuno con certi metodi suddivisi
+in base al tipo di entità, al tipo di URL, come abbiamo notato nelle slide della lezione precedente che tutti gli URL
+erano simili /users/123 /users, quindi ciò che possiamo vedere da questi esempi è che questi controller si raggrupperanno
+tutti sullo stesso controller, se ho un'altra risorsa con del CRUD magari per i prodotti allora mi farò un altro controller
+dedicato e raggruppare gli endpoint comuni nello stesso controller, ha dei vantaggi che poi vedremo
+
+la macchina che gestisce i controlli si chiama Dispacther Serviet che riceve la richiesta e chiede all'HandlerMapping a
+chi deve inviare la richiesta e poi la richiesta viene mandata al controller degli utenti, all'interno del controller degli
+utenti avremmo vari ENDPOINT e poi da li andrà a verificare il METODO DELLA RICHIESTA, l'url della richiesta tipo /users o
+/users/123 e quindi in base alla combinazione univoca di metodo e URL, si selezionerà il METODO della classe controller
+e verrà eseguito il codice da noi selezioneto, GRAN PARTE DI QUESTO IN AUTOMATICO.Una delle belle caratteristiche di
+SPRING WEB è che può gestire anche più richieste simultaneamente dunque non le svilupperà una a una.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
